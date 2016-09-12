@@ -1,3 +1,4 @@
-# stitching
+Stitching
+=========
 
 Image stitching
