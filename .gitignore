@@ -5,6 +5,7 @@ __pycache__/
 .eggs/
 .env
 .hypothesis/
+.idea/
 .installed.cfg
 .ipynb_checkpoints
 .Python
