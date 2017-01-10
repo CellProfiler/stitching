@@ -15,15 +15,15 @@ setuptools.setup(
         ]
     },
     install_requires=[
-        "bioformats",
+        # "python-bioformats",
         "click",
         "javabridge",
         "numpy",
         "scikit-image"
     ],
-    dependency_links=[
-        "https://github.com/CellProfiler/python-bioformats/master"
-    ],
+    # dependency_links=[
+    #     "https://github.com/CellProfiler/python-bioformats.git@b8bea8f03d782aad083aa6f085083b059c7caac3#egg=python_bioformats"
+    # ],
     license="BSD",
     name="stitching",
     packages=setuptools.find_packages(
