@@ -6,6 +6,7 @@ import bioformats
 import bioformats.formatreader
 import click
 import javabridge
+import javabridge.jutil
 import numpy
 import numpy.random
 import skimage.io
@@ -16,41 +17,57 @@ import skimage.util.montage
 @click.argument("image", type=click.Path(exists=True))
 @click.option("-o", "--output", type=click.Path(exists=False))
 @click.option("--image-size", default=55)
-def __main__(image, output, image_size):
+@click.option("--montage-size", default=30)
+
+
+def __main__(image, output, image_size, montage_size):
     try:
         javabridge.start_vm(class_path=bioformats.JARS)
 
         os.mkdir(output)
 
-        __stitch(image, output, image_size)
+        __stitch(image, output, image_size, montage_size)
     finally:
         javabridge.kill_vm()
 
 
-def __stitch(filename, output, image_size):
+def __stitch(filename, output, image_size, montage_size):
     reader = bioformats.formatreader.get_image_reader("tmp", path=filename)
 
-    n_images = javabridge.call(reader.metadata, "getImageCount", "()I")
+    image_count = javabridge.call(reader.metadata, "getImageCount", "()I")
 
-    n_channels = javabridge.call(reader.metadata, "getChannelCount", "(I)I", 0)
+    channel_count = javabridge.call(reader.metadata, "getChannelCount", "(I)I", 0)
 
-    for channel in range(n_channels):
-        images = [__pad(reader.read(c=channel, series=image), image_size) for image in range(n_images)[::2]]
+    n_chunks = __compute_chunks(image_count/2,montage_size)
+    chunk_size = montage_size**2
 
-        montage = skimage.util.montage.montage2d(numpy.asarray(images), 0)
+    for channel in range(channel_count):
+        for chunk in range(n_chunks):
+            try:
+                images = [
+                    reader.read(c=channel, series=image) for image in range(image_count)[::2][chunk*chunk_size:(chunk+1)*chunk_size]
+                ]
+            except javabridge.jutil.JavaException:
+                break
 
-        skimage.io.imsave(os.path.join(output, "ch{:d}.tif".format(channel + 1)), montage)
+            images = [__pad_or_crop(image, image_size) for image in images]
+
+            montage = skimage.util.montage.montage2d(numpy.asarray(images), 0)
+
+            if chunk == (n_chunks-1):
+                montage = __pad_to_same_chunk_size(montage, image_size, montage_size)
+
+            skimage.io.imsave(os.path.join(output, "ch{:d}_{:d}.tif".format(channel + 1, chunk + 1)), montage)
 
 
-def __pad(image, image_size):
-    pad_x = float(image_size - image.shape[0])
+def __pad_or_crop(image, image_size):
+    bigger = max(image.shape[0], image.shape[1], image_size)
 
-    pad_y = float(image_size - image.shape[1])
+    pad_x = float(bigger - image.shape[0])
+    pad_y = float(bigger - image.shape[1])
 
     pad_width_x = (int(math.floor(pad_x / 2)), int(math.ceil(pad_x / 2)))
-
     pad_width_y = (int(math.floor(pad_y / 2)), int(math.ceil(pad_y / 2)))
-
     sample = image[-10:, :10]
 
     std = numpy.std(sample)
@@ -59,13 +76,41 @@ def __pad(image, image_size):
 
     def normal(vector, pad_width, iaxis, kwargs):
         vector[:pad_width[0]] = numpy.random.normal(mean, std, vector[:pad_width[0]].shape)
-
         vector[-pad_width[1]:] = numpy.random.normal(mean, std, vector[-pad_width[1]:].shape)
-
         return vector
 
-    return numpy.pad(image, (pad_width_x, pad_width_y), normal)
+    if bigger == image_size:
+        return numpy.pad(image, (pad_width_x, pad_width_y), normal)
+    else:
+        if bigger == image.shape[0]:
+            temp_image = numpy.pad(image, (pad_width_y), normal)
+            return temp_image[(bigger - image_size)/2:(bigger + image_size)/2,(bigger - image_size)/2:(bigger + image_size)/2]
+        else:
+            temp_image = numpy.pad(image, (pad_width_x), normal)
+            return temp_image[(bigger - image_size)/2:(bigger + image_size)/2,(bigger - image_size)/2:(bigger + image_size)/2]
 
+
+def __pad_to_same_chunk_size(small_montage, image_size, montage_size):
+    pad_x = float(montage_size*image_size - small_montage.shape[0])
+
+    pad_y = float(montage_size*image_size - small_montage.shape[1])
+
+    npad = ((0,int(pad_y)), (0,int(pad_x)))
+
+    return numpy.pad(small_montage, pad_width=npad, mode='constant', constant_values=0)
+
+
+def __compute_chunks(n_images, montage_size):
+
+    def remainder(images, groups):
+        return (images - groups * (montage_size ** 2))
+
+    n_groups = 1
+
+    while remainder(n_images, n_groups) > 0:
+        n_groups += 1
+
+    return n_groups
 
 if __name__ == "__main__":
     __main__()
