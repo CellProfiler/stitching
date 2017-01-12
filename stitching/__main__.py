@@ -68,7 +68,7 @@ def __pad_or_crop(image, image_size):
 
     pad_width_x = (int(math.floor(pad_x / 2)), int(math.ceil(pad_x / 2)))
     pad_width_y = (int(math.floor(pad_y / 2)), int(math.ceil(pad_y / 2)))
-    sample = image[-10:, :10]
+    sample = image[image.shape[0]/2-4:image.shape[0]/2+4, :8]
 
     std = numpy.std(sample)
 
