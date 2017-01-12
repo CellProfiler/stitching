@@ -84,10 +84,9 @@ def __pad_or_crop(image, image_size):
     else:
         if bigger == image.shape[0]:
             temp_image = numpy.pad(image, (pad_width_y), normal)
-            return temp_image[(bigger - image_size)/2:(bigger + image_size)/2,(bigger - image_size)/2:(bigger + image_size)/2]
         else:
             temp_image = numpy.pad(image, (pad_width_x), normal)
-            return temp_image[(bigger - image_size)/2:(bigger + image_size)/2,(bigger - image_size)/2:(bigger + image_size)/2]
+        return temp_image[(bigger - image_size)/2:(bigger + image_size)/2,(bigger - image_size)/2:(bigger + image_size)/2]
 
 
 def __pad_to_same_chunk_size(small_montage, image_size, montage_size):
