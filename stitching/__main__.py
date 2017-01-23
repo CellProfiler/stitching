@@ -22,7 +22,7 @@ import skimage.util.montage
 
 def __main__(image, output, image_size, montage_size):
     try:
-        javabridge.start_vm(class_path=bioformats.JARS)
+        javabridge.start_vm(class_path=bioformats.JARS, max_heap_size='8G')
 
         os.mkdir(output)
 
