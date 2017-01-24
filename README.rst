@@ -41,6 +41,10 @@ Installation
 
   $ pip install -e .
 
+Info
+====
+Users may notice that when opening and zooming the images in IDEAS (and also in ImageJ, IrfanView) the images appear to be higher resolution, but this is because the software has an adjustable DPI setting, which uses interpolation to scale the images up (adding pixels) for display and publication.
+
 Use
 ===
 
