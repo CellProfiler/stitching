@@ -51,7 +51,7 @@ Generates per-channel montages from IMAGE saved to OUTPUT_DIRECTORY. Each image 
 Open a new command line window (also called command prompt window in Windows OS or terminal in MAC OS). Now, to generate the montages, you can either (1) start the stitching GUI or (2) use the command line.
 
 1. To use the GUI, type
-  $ python stitching.py
+  $ python stitching
 The GUI window will open where you can select a .cif file to generate the montages. Optionally you can also display selected images from the .cif file.
 
 OR
