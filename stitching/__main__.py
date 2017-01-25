@@ -132,7 +132,7 @@ class Stitching(Frame):
 		tkMessageBox.showinfo("", text)
 		
 	def messageBox2(self):
-		text = "Enter the number of cells per row and per column in the output image. The default value for the grid size is 32 and will yield output images with 32x32 cells per montage. The maximum possible value is 100."
+		text = "Enter the number of cells per row and per column in the output image. The default value for the grid size is 30 and will yield output images with 30x30 cells per montage. The maximum possible value is 100."
 		tkMessageBox.showinfo("", text)
 		
 	def chooseDir(self):
@@ -172,7 +172,7 @@ class Stitching(Frame):
 					self.Text3.insert(END,self.n_channels)
 					self.Text3.config(state=DISABLED)
 					self.entry1.insert(0,'1-'+str(self.n_channels))
-					self.entry2.insert(0,32)
+					self.entry2.insert(0,30)
 				except:
 					tkMessageBox.showinfo("Error", "Please choose a correct .cif file.")
 			if self.filename and not self.filename.lower().endswith('.cif'):
