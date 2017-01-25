@@ -57,7 +57,7 @@ The GUI window will open where you can select a .cif file to generate the montag
 OR
 
 2. To use the command line, type
-  $ python stitching -image='path/to/IMAGE' -output path/to/OUTPUT_DIRECTORY
+  $ python stitching -image='path/to/IMAGE' -output='path/to/OUTPUT_DIRECTORY'
 
 
 Optional:
