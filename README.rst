@@ -35,6 +35,21 @@ matplotlib
 
 Additional in Windows OS: Visual C++ 9.0
 
+For MacOSX users
+================
+
+The error " libc++abi.dylib: terminating with uncaught exception of type ..." should be noticed to MacOSX users. To solve this:
+
+If users have installed "pip matplotlib", there is a directory in root called ~/.matplotlib
+
+Create an empty file ~/.matplotlib/matplotlibrc
+add the following code: 
+backend: TkAgg
+
+Further see:
+
+https://www.python.org/download/mac/tcltk/
+
 Installation
 ============
 
