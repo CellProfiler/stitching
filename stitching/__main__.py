@@ -68,7 +68,7 @@ def __pad_or_crop(image, image_size):
 
     pad_width_x = (int(math.floor(pad_x / 2)), int(math.ceil(pad_x / 2)))
     pad_width_y = (int(math.floor(pad_y / 2)), int(math.ceil(pad_y / 2)))
-    sample = image[image.shape[0]/2-4:image.shape[0]/2+4, :8]
+    sample = image[int(image.shape[0]/2)-4:int(image.shape[0]/2)+4, :8]
 
     std = numpy.std(sample)
 
@@ -89,8 +89,7 @@ def __pad_or_crop(image, image_size):
                 temp_image = numpy.pad(image, (pad_width_x), normal)
             else:
                 temp_image = image
-        return temp_image[(temp_image.shape[0] - image_size)/2:(temp_image.shape[0] + image_size)/2,(temp_image.shape[1] - image_size)/2:(temp_image.shape[1] + image_size)/2]
-
+        return temp_image[int((temp_image.shape[0] - image_size)/2):int((temp_image.shape[0] + image_size)/2),int((temp_image.shape[1] - image_size)/2):int((temp_image.shape[1] + image_size)/2)]
 
 def __pad_to_same_chunk_size(small_montage, image_size, montage_size):
     pad_x = float(montage_size*image_size - small_montage.shape[0])
