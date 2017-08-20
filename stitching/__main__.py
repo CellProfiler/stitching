@@ -57,7 +57,7 @@ def __stitch(filename, output, image_size, montage_size):
             if chunk == (n_chunks-1):
                 montage = __pad_to_same_chunk_size(montage, image_size, montage_size)
 
-            skimage.io.imsave(os.path.join(output, "ch{:d}_{:d}.tif".format(channel + 1, chunk + 1)), montage)
+            skimage.io.imsave(os.path.join(output, "Ch{:d}_{:d}.tif".format(channel + 1, chunk + 1)), montage)
 
 
 def __pad_or_crop(image, image_size):
