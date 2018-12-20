@@ -10,7 +10,7 @@ import javabridge.jutil
 import numpy
 import numpy.random
 import skimage.io
-import skimage.util.montage
+from skimage.util import montage
 
 
 @click.command()
