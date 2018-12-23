@@ -52,7 +52,10 @@ def __stitch(filename, output, image_size, montage_size):
 
             images = [__pad_or_crop(image, image_size) for image in images]
 
-            montage = skimage.util.montage.montage2d(numpy.asarray(images), 0)
+            montage = skimage.util.montage(numpy.asarray(images), 0)
+            
+            ## Optional: if you want to stretch the intensity of the image to uint8 range
+            #montage = _rescale(montage)
 
             if chunk == (n_chunks-1):
                 montage = __pad_to_same_chunk_size(montage, image_size, montage_size)
@@ -68,12 +71,8 @@ def __pad_or_crop(image, image_size):
 
     pad_width_x = (int(math.floor(pad_x / 2)), int(math.ceil(pad_x / 2)))
     pad_width_y = (int(math.floor(pad_y / 2)), int(math.ceil(pad_y / 2)))
-    # sample = image[int(image.shape[0]/2)-4:int(image.shape[0]/2)+4, :8]
-    sample = image[-10:,-10:]
-
-    std = numpy.std(sample)
-
-    mean = numpy.mean(sample)
+    
+    mean, std = _sample(image)
 
     def normal(vector, pad_width, iaxis, kwargs):
         vector[:pad_width[0]] = numpy.random.normal(mean, std, vector[:pad_width[0]].shape)
@@ -92,6 +91,7 @@ def __pad_or_crop(image, image_size):
                 temp_image = image
         return temp_image[int((temp_image.shape[0] - image_size)/2):int((temp_image.shape[0] + image_size)/2),int((temp_image.shape[1] - image_size)/2):int((temp_image.shape[1] + image_size)/2)]
 
+    
 def __pad_to_same_chunk_size(small_montage, image_size, montage_size):
     pad_x = float(montage_size*image_size - small_montage.shape[0])
 
@@ -113,6 +113,36 @@ def __compute_chunks(n_images, montage_size):
         n_groups += 1
 
     return n_groups
+
+
+def _sample(x):
+    corners = numpy.asarray((
+        x[:10, :10].flatten(),
+        x[:10, -10:].flatten(),
+        x[-10:, :10].flatten(),
+        x[-10:, -10:].flatten()
+    ))
+
+    means = numpy.mean(corners, axis=1)
+    stds = numpy.std(corners, axis=1)
+
+    # Choose the corner with the lowest standard deviation.
+    # This is most likely to be background, in the majority
+    # of observed cases.
+    std = numpy.min(stds)
+
+    idx = numpy.where(stds == std)[0][0]
+    mean = means[idx]
+
+    return mean, std
+
+
+# (Optional) Stretch the intensity scale to visible 8-bit images.
+def _rescale(image):
+    vmin, vmax = scipy.stats.scoreatpercentile(image, (0.01, 99.95))
+
+    return skimage.exposure.rescale_intensity(image, in_range=(vmin, vmax), out_range=numpy.uint8).astype(numpy.uint8)
+
 
 if __name__ == "__main__":
     __main__()
